@@ -10,6 +10,7 @@ import java.util.List;
 public class EventoDAO {
     private Connection con;
 
+
     public EventoDAO(){
         this.con = new ConnectionFactory().getConnection();
     }
