@@ -1,0 +1,11 @@
+@charset "utf-8";
+
+.externo {
+    background-color: red !important;
+    border: red !important;
+}
+
+.interno {
+    background-color: green;
+    border: green !important;
+}

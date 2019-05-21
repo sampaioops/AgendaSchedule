@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+
+
+
+    <h:head>
+        <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+        <title>Agenda</title>
+
+        <script type="text/javascript">
+            PrimeFaces.locales['pt'] = {
+                closeText: 'Fechar',
+                prevText: 'Anterior',
+                nextText: 'Próximo',
+                currentText: 'Começo',
+                monthNames: ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'],
+                monthNamesShort: ['Jan','Fev','Mar','Abr','Mai','Jun', 'Jul','Ago','Set','Out','Nov','Dez'],
+                dayNames: ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'],
+                dayNamesShort: ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'],
+                dayNamesMin: ['D','S','T','Q','Q','S','S'],
+                weekHeader: 'Semana',
+                firstDay: 0,
+                isRTL: false,
+                showMonthAfterYear: false,
+                yearSuffix: '',
+                timeOnlyTitle: 'Só Horas',
+                timeText: 'Tempo',
+                hourText: 'Hora',
+                minuteText: 'Minuto',
+                secondText: 'Segundo',
+                ampm: false,
+                month: 'Mês',
+                week: 'Semana',
+                day: 'Dia',
+                allDayText : 'Todo o Dia'
+            };
+        </script>
+
+
+    </h:head>
+
+<h:body>
+
+    <h:outputStylesheet library="css" name="schedule.css" />
+    <h:form>
+        <p:growl id="messages" showDetail="true" />
+        <p:panelGrid id="panelSchedule" columns="2" columnClasses="value" >
+            <p:schedule id="schedule" value="#{agendaBean.lazyEventModel}" widgetVar="schedule"
+                        timeZone="America/Fortaleza" locale="br"
+                        view="#{agendaBean.abreDay}" initialDate="#{agendaBean.data}" timeFormat="HH:mm" axisFormat="H:mm" minTime="6:00" maxTime="19:00"
+                        style="width: 1000px; height: 700px;">
+
+                <p:ajax event="dateSelect" listener="#{agendaBean.onDateSelect}" update="panelGridEvento" oncomplete="atualizaTab()" />
+                <p:ajax event="eventSelect" listener="#{agendaBean.onEventSelect}" update="panelGridEvento" oncomplete="PF('eventDialog').show();" />
+                <p:ajax event="eventMove" listener="#{agendaBean.onEventMove}" update="messages" />
+
+            </p:schedule>
+
+            <p:commandButton value="Agendar" actionListener="#{agendaBean.agendar()}" oncomplete="PF('eventDialog').show()" update="panelGridEvento" />
+        </p:panelGrid>
+
+        <p:remoteCommand name="atualizaTab" update="schedule" action="#{agendaBean.atualizaTab}" />
+
+
+        <p:dialog id="eventDialog" widgetVar="eventDialog" header="Evento" responsive="true" modal="true" >
+            <p:panelGrid columns="1" id="panelGridEvento" layout="grid" styleClass="ui-panelgrid-blank" columnClasses="ui-grid-col-12">
+                <p:inputText value="#{agendaBean.evento.titulo}" placeholder="Título" size="30"/>
+                <p:calendar pattern="dd/MM/yyyy HH:mm:ss"  value="#{agendaBean.evento.dataInicio}" placeholder="Data Início">
+                </p:calendar>
+                <p:calendar  value="#{agendaBean.evento.dataFim}" pattern="dd/MM/yyyy HH:mm:ss"  placeholder="Data Fim">
+                </p:calendar>
+                <p:outputLabel value="Dia Inteiro ?" for="diaInteiro"/>
+                <p:selectBooleanButton id="diaInteiro" value="#{agendaBean.evento.diaInteiro}" onLabel="Sim" offLabel="Não" label="Dia Inteiro"/>
+
+                <p:selectOneMenu id="selectTipoAgendamento" value="#{agendaBean.evento.tipoAgendamento}"
+                                 layout="pageDirection" >
+                    <f:selectItem itemLabel="Tipo de Agendamento" noSelectionOption="true" />
+                    <f:selectItems value="#{agendaBean.tipoAgendamentoEnums}" var="tipo"
+                                   itemLabel="#{tipo.descricao}" itemValue="#{tipo}" />
+                </p:selectOneMenu>
+
+            </p:panelGrid>
+            <f:facet name="footer">
+                <p:commandButton value="Fechar" onclick="PF('eventDialog').hide(); return false;"/>
+                <p:commandButton value="Salvar" update="#{p:component('messages')},#{p:component('schedule')},@form" process="@form" action="#{agendaBean.salvar()}"/>
+                <p:commandButton value="Remover" update="#{p:component('messages')},#{p:component('schedule')},@form" action="#{agendaBean.remover()}"/>
+            </f:facet>
+        </p:dialog>
+
+    </h:form>
+</h:body>
+</html>

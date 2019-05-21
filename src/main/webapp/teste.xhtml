@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<ui:composition template="/template/template.xhtml">
+    <ui:define name="conteudo">
+        <p:growl id="mensagem" showDetail="true" sticky="true" />
+        <h:form id="formularioAgendamento">
+            <p:schedule value="#{consultaBean.eventoModelo}" widgetVar="consulta"
+                        id="scheduleConsulta" timeZone="America/Sao_Paulo">
+                <p:ajax event="eventSelect" listener="#{consultaBean.selecionar}"
+                        oncomplete="PF('caixaDialogo').show();" update=":formularioDialogo" />
+
+                <p:ajax event="dateSelect" listener="#{consultaBean.clicar}"
+                        update=":formularioDialogo" oncomplete="PF('caixaDialogo').show();" />
+            </p:schedule>
+        </h:form>
+
+        <p:dialog id="dialog" draggable="false" resizable="false"
+                  closable="true" modal="true" appendTo="@(body)" header="Evento"
+                  widgetVar="caixaDialogo">
+            <h:form id="formularioDialogo">
+                <h:panelGrid columns="2">
+
+                    <p:outputLabel value="Nome do cliente: " />
+                    <p:inputText value="#{consultaBean.consulta.titulo}" />
+
+                    <p:outputLabel value="Inicio evento: " />
+                    <p:calendar value="#{consultaBean.consulta.inicio}"
+                                pattern="dd/MM/yyyy" />
+
+                    <p:outputLabel value="Fim evento: " />
+                    <p:calendar value="#{consultaBean.consulta.fim}"
+                                pattern="dd/MM/yyyy" />
+
+                    <p:outputLabel value="Status: " />
+                    <p:selectBooleanCheckbox value="#{consultaBean.consulta.status}" />
+
+                    <p:outputLabel value="Descrição: " />
+                    <p:inputTextarea value="#{consultaBean.consulta.descricao}" />
+
+                    <p:outputLabel value="Cliente" for="cliente" />
+                    <p:selectOneMenu id="cliente"
+                                     value="#{consultaBean.consulta.pessoa.codigo}">
+                        <f:selectItem itemValue="" itemLabel="Selecione um cliente" />
+                        <f:selectItems value="#{consultaBean.listaPessoas}" var="pessoa"
+                                       itemValue="#{pessoa.codigo}" itemLabel="#{pessoa.nome}" />
+                    </p:selectOneMenu>
+                </h:panelGrid>
+
+                <p:separator />
+
+                <p:commandButton value="Salvar" action="#{consultaBean.salvar}"
+                                 update=":formularioAgendamento :mensagem :formularioAgendamento:scheduleConsulta"
+                                 oncomplete="PF('caixaDialogo').hide();" />
+            </h:form>
+        </p:dialog>
+
+    </ui:define>
+</ui:composition>
+
+</html>
