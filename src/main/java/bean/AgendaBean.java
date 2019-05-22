@@ -5,11 +5,13 @@ import Enums.TipoAgendamento;
 import model.CostumSchedule;
 import model.Evento;
 import org.primefaces.event.ScheduleEntryMoveEvent;
+import org.primefaces.event.ScheduleEntryResizeEvent;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.model.DefaultScheduleModel;
 import org.primefaces.model.LazyScheduleModel;
 import org.primefaces.model.ScheduleEvent;
 import org.primefaces.model.ScheduleModel;
+import util.DateUtils;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -17,7 +19,6 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -29,14 +30,12 @@ public class AgendaBean {
 
     private Evento evento;
     private ScheduleEvent event;
-    private List<ScheduleEvent> scheduleEvents;
 
 
     private EventoDAO eventoDAO = new EventoDAO();
 
     private String abreDay = "month";
-    private LocalDate localDate = LocalDate.now().minusYears(1);
-    private Date data = Date.from(localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());;
+    private Date data = DateUtils.asDate(LocalDate.now());
 
     public AgendaBean() {
         event = new CostumSchedule();
@@ -91,12 +90,17 @@ public class AgendaBean {
 
     public void carregaDados(){
 
-        List<Evento> eventos = this.eventoDAO.listar();
-
         lazyEventModel = new LazyScheduleModel(){
+
             @Override
             public void loadEvents(Date start, Date end) {
+
+                List<Evento> eventos = eventoDAO.listar(start, end);
+
                 for (Evento eventoAtual : eventos){
+
+
+
                     String tipo = "";
 
                     if(eventoAtual.getTipoAgendamento().equals(TipoAgendamento.EXTERNO)){
@@ -108,6 +112,7 @@ public class AgendaBean {
                     ScheduleEvent newEvent = new CostumSchedule(eventoAtual.getTitulo(), eventoAtual.getDataInicio(), eventoAtual.getDataFim(), eventoAtual.isDiaInteiro(), tipo, true, eventoAtual);
 
                     addEvent(newEvent);
+
                 }
 
             }

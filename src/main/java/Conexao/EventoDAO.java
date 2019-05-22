@@ -2,14 +2,20 @@ package Conexao;
 
 import Enums.TipoAgendamento;
 import model.Evento;
+import org.joda.time.DateTime;
+import util.DateUtils;
 
 import java.sql.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class EventoDAO {
     private Connection con;
-
 
     public EventoDAO(){
         this.con = new ConnectionFactory().getConnection();
@@ -81,12 +87,18 @@ public class EventoDAO {
         }
     }
 
-    public List<Evento> listar(){
-        String sql = "SELECT * FROM eventos";
+    public List<Evento> listar(java.util.Date date_inicial, Date data_final){
+        Timestamp timestamp_inicial = new Timestamp(date_inicial.getTime());
+        Timestamp timestamp_final = new Timestamp(data_final.getTime());
+
+
+        String sql = "SELECT * FROM eventos WHERE data_inicio >= ? AND data_final <= ?";
 
 
         try {
             PreparedStatement stmt = con.prepareStatement(sql);
+            stmt.setTimestamp(1, timestamp_inicial);
+            stmt.setTimestamp(2, timestamp_final);
             ResultSet rs = stmt.executeQuery();
             List<Evento> eventos = new ArrayList<>();
 
@@ -105,6 +117,7 @@ public class EventoDAO {
                 } else {
                     evento.setTipoAgendamento(TipoAgendamento.INTERNO);
                 }
+
 
                 eventos.add(evento);
 
