@@ -19,6 +19,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -35,7 +36,8 @@ public class AgendaBean {
     private EventoDAO eventoDAO = new EventoDAO();
 
     private String abreDay = "month";
-    private Date data = DateUtils.asDate(LocalDate.now());
+    private LocalDate localDate = LocalDate.now();
+    private Date data = Date.from(localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
 
     public AgendaBean() {
         event = new CostumSchedule();
